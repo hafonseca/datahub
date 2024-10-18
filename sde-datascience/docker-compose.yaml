@@ -52,7 +52,7 @@ services:
       - ds-net
 
 networks:
-  alpek-net:
+  ds-net:
     name: ds-net
     driver: bridge
     external: true
