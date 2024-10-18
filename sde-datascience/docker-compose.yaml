@@ -1,0 +1,58 @@
+services:
+  timescaledb:
+    image: timescale/timescaledb:latest-pg14
+    container_name: timescaledb2
+    restart: unless-stopped
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 1234
+    volumes:
+      - ./volumes/timescale/data:/var/lib/postgresql/data
+    networks:
+      - ds-net
+
+  grafana:
+    image: grafana/grafana:11.0.1
+    container_name: grafana
+    restart: unless-stopped
+    volumes:
+      - ./volumes/grafana/data:/var/lib/grafana
+    ports:
+      - 3000:3000
+    networks:
+      - ds-net
+
+  sorba-ai:
+    image: sorbotics/sorba-sde:latest
+    container_name: sorba-ai
+    restart: unless-stopped
+#    volumes:
+#      - ./volumes/sorba-ai:/opt
+    ports:
+      - "443:443"
+      - "1883:1883"
+    networks:
+      - ds-net
+
+  jupyter-notebook:
+    image: quay.io/jupyter/datascience-notebook
+    container_name: jupyter-notebook
+    restart: unless-stopped
+    volumes:
+      - ./volumes/jupyter:/home/jovyan/work
+    ports:
+      - "10000:8888"
+    environment:
+      - JUPYTER_TOKEN=
+    command: start-notebook.sh --NotebookApp.token='' --NotebookApp.password=''
+    networks:
+      - ds-net
+
+networks:
+  alpek-net:
+    name: ds-net
+    driver: bridge
+    external: true
